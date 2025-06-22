@@ -3,7 +3,6 @@ import argparse
 import feedparser
 import requests
 from readability import Document
-from bs4 import BeautifulSoup
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table

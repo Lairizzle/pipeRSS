@@ -11,7 +11,6 @@ setup(
         "feedparser",
         "requests",
         "readability-lxml",
-        "beautifulsoup4",
         "rich",
         "html2text",
     ],
