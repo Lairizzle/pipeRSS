@@ -1,0 +1,6 @@
+feedparser
+requests
+readability-lxml
+beautifulsoup4
+rich
+
