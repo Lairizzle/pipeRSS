@@ -7,9 +7,62 @@ from bs4 import BeautifulSoup
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
+from rich.align import Align
+import re
 import textwrap
+import math
+import html2text
 
 console = Console()
+
+
+def minimal_markdown_format(paragraphs):
+    formatted = []
+    in_code_block = False
+
+    for para in paragraphs:
+        stripped = para.strip()
+
+        # Detect code block start/end
+        if stripped.startswith("```"):
+            in_code_block = not in_code_block
+            continue  # Skip the ``` line itself
+
+        if in_code_block:
+            # Indent code block lines
+            formatted.append("    " + para)
+            continue
+
+        # Headers (Markdown style)
+        if re.match(r"^#{1,6} ", stripped):
+            header_text = re.sub(r"^#{1,6} ", "", stripped).upper()
+            underline = "-" * len(header_text)
+            formatted.append(header_text)
+            formatted.append(underline)
+            continue
+
+        # Unordered lists
+        if stripped.startswith(("- ", "* ", "+ ")):
+            formatted.append("  • " + stripped[2:])
+            continue
+
+        # Ordered lists
+        m = re.match(r"^(\d+)\. (.*)", stripped)
+        if m:
+            formatted.append(f"  {m.group(1)}. {m.group(2)}")
+            continue
+
+        # Inline code (backticks)
+        if "`" in para:
+            # Replace `code` with [code] for CLI highlighting
+            formatted.append(re.sub(r"`([^`]+)`", r"'\1'", para))
+            continue
+
+        # Otherwise, regular paragraph
+        formatted.append(para)
+    return formatted
 
 
 def get_feed_file_path():
@@ -83,7 +136,7 @@ def print_centered_block(lines):
     term_height = console.size.height
 
     pad_top = max((term_height - len(lines)) // 2, 0)
-    max_len = max(len(line) for line in lines)
+    max_len = max(len(line) for line in lines) if lines else 0
     pad_left = max((term_width - max_len) // 2, 0)
 
     console.clear()
@@ -99,7 +152,8 @@ def fetch_full_article(url):
         response.raise_for_status()
         doc = Document(response.text)
         summary_html = doc.summary()
-        text = BeautifulSoup(summary_html, "html.parser").get_text(separator="\n")
+        # Convert HTML to Markdown for better CLI formatting
+        text = html2text.html2text(summary_html)
         return text.strip()
     except Exception as e:
         return f"[⚠️ Error fetching article: {e}]"
@@ -107,66 +161,123 @@ def fetch_full_article(url):
 
 def display_article(entry, entries, feed_url):
     full_text = fetch_full_article(entry.link)
-    paragraphs = [p.strip() for p in full_text.split("\n") if p.strip()]
-    if not paragraphs:
-        summary = getattr(entry, "summary", "[No summary available]")
-        paragraphs = [summary]
+    if not full_text.strip():
+        full_text = getattr(entry, "summary", "[No summary available]")
 
+    # Normalize line endings
+    full_text = full_text.replace("\r\n", "\n").replace("\r", "\n")
+
+    # Split into paragraphs on double newlines
+    paragraphs = [p.strip() for p in full_text.split("\n\n") if p.strip()]
+
+    # If still no good paragraphs, split into chunks
+    if not paragraphs or (len(paragraphs) == 1 and len(paragraphs[0]) > 1000):
+        text = paragraphs[0] if paragraphs else full_text
+        chunk_size = 400
+        words = text.split()
+        current_chunk = []
+        current_length = 0
+        paragraphs = []
+
+        for word in words:
+            if current_length + len(word) > chunk_size and current_chunk:
+                paragraphs.append(" ".join(current_chunk))
+                current_chunk = [word]
+                current_length = len(word)
+            else:
+                current_chunk.append(word)
+                current_length += len(word) + 1
+        if current_chunk:
+            paragraphs.append(" ".join(current_chunk))
+
+    paragraphs = minimal_markdown_format(paragraphs)
+
+    # Wrap lines without breaking words or URLs
+    wrapper = textwrap.TextWrapper(
+        width=80, break_long_words=False, break_on_hyphens=False
+    )
     wrapped_lines = []
-    line_width = 80
     for para in paragraphs:
-        wrapped = textwrap.wrap(para, width=line_width)
-        wrapped_lines.extend(wrapped + [""])
+        wrapped_para = wrapper.wrap(para)
+        wrapped_lines.extend(wrapped_para)
+        wrapped_lines.append("")  # one blank line between paragraphs
 
-    page_size = console.size.height - 7
+    # Remove trailing empty line
+    if wrapped_lines and not wrapped_lines[-1].strip():
+        wrapped_lines.pop()
+
+    reserved_lines = 9  # header, prompt, etc.
+    page_size = max(console.size.height - reserved_lines, 10)
     total_lines = len(wrapped_lines)
-    total_pages = (total_lines + page_size - 1) // page_size
+    total_pages = max(1, math.ceil(total_lines / page_size))
     page = 0
 
-    term_width = console.size.width
-    while page * page_size < total_lines:
-        start = page * page_size
-        end = start + page_size
-
-        content_lines = []
-        content_lines.append(f"📰 {entry.title}")
-        content_lines.append(f"--- Page {page + 1}/{total_pages} ---\n")
-        content_lines.extend(wrapped_lines[start:end])
-
-        content_height = len(content_lines)
-        pad_top = max((console.size.height - content_height) // 2, 0)
-        max_line_length = max(len(line) for line in content_lines)
-        pad_left = max((term_width - max_line_length) // 2, 0)
-
-        console.clear()
-        console.print("\n" * pad_top, end="")
-
-        for line in content_lines:
-            console.print(" " * pad_left + line)
-
-        page += 1
-        if end < total_lines:
-            resp = Prompt.ask(
-                "[yellow]Press [Enter] to continue, 'b' to go back, 'm' for main menu or 'q' to quit[/yellow]",
-                default="",
-            )
-            if resp.lower() == "q":
-                exit(0)
-            elif resp.lower() == "m":
-                return "main_menu"
-            elif resp.lower() == "b":
-                return "back_to_articles"
+    # Header
+    header = Panel(
+        Text(entry.title, style="bold underline yellow"),
+        title="Article",
+        border_style="magenta",
+        padding=(0, 2),
+    )
 
     while True:
-        resp = Prompt.ask(
-            "[yellow]End of article. Press 'b' to go back, 'm' for main menu or 'q' to quit.[yellow]"
+        console.clear()
+        console.print(Align.center(header))
+        console.print()
+
+        start = page * page_size
+        end = min(start + page_size, total_lines)
+        current_lines = wrapped_lines[start:end]
+
+        # Calculate indent for whole block centering
+        max_line_length = (
+            max(len(line) for line in current_lines if line.strip())
+            if current_lines
+            else 0
         )
-        if resp.lower() == "q":
+        term_width = console.size.width
+        pad_left = max((term_width - max_line_length) // 2, 0)
+
+        # Print lines with left indent
+        for line in current_lines:
+            console.print(" " * pad_left + line)
+
+        console.print()
+
+        # Center the page numbers with the same padding as the article text
+        page_text = f"--- Page {page + 1}/{total_pages} ---"
+        page_padding = max((term_width - len(page_text)) // 2, 0)
+        console.print(" " * page_padding + page_text)
+
+        console.print()
+
+        # Navigation prompt
+        if end < total_lines:
+            resp = Prompt.ask(
+                "[bold yellow]Press [Enter] to continue, 'b' to go back, 'm' for menu, or 'q' to quit[/bold yellow]",
+                default="",
+            )
+        else:
+            resp = Prompt.ask(
+                "[bold yellow]End of article. Press [Enter] to return, 'b' to go back, 'm' for menu, or 'q' to quit[/bold yellow]",
+                default="",
+            )
+
+        resp = resp.lower()
+        if resp == "q":
             exit(0)
-        elif resp.lower() == "m":
+        elif resp == "m":
             return "main_menu"
-        elif resp.lower() == "b":
-            return "back_to_articles"
+        elif resp == "b":
+            if page > 0:
+                page -= 1
+            else:
+                return "back_to_articles"
+        else:
+            if end < total_lines:
+                page += 1
+            else:
+                return "back_to_articles"
 
 
 def select_feed_and_read():

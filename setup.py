@@ -13,6 +13,7 @@ setup(
         "readability-lxml",
         "beautifulsoup4",
         "rich",
+        "html2text",
     ],
     entry_points={"console_scripts": ["piperss = piperss.main:main"]},
     python_requires=">=3.7",
