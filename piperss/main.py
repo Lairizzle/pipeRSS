@@ -18,50 +18,50 @@ console = Console()
 
 
 def minimal_markdown_format(paragraphs):
-    formatted = []
+    formatted_blocks = []
     in_code_block = False
 
     for para in paragraphs:
-        stripped = para.strip()
+        lines = para.splitlines()
+        block = []
 
-        # Detect code block start/end
-        if stripped.startswith("```"):
-            in_code_block = not in_code_block
-            continue  # Skip the ``` line itself
+        for line in lines:
+            stripped = line.strip()
 
-        if in_code_block:
-            # Indent code block lines
-            formatted.append("    " + para)
-            continue
+            # Toggle code block mode
+            if stripped.startswith("```"):
+                in_code_block = not in_code_block
+                continue
 
-        # Headers (Markdown style)
-        if re.match(r"^#{1,6} ", stripped):
-            header_text = re.sub(r"^#{1,6} ", "", stripped).upper()
-            underline = "-" * len(header_text)
-            formatted.append(header_text)
-            formatted.append(underline)
-            continue
+            if in_code_block:
+                block.append("    " + line)
+                continue
 
-        # Unordered lists
-        if stripped.startswith(("- ", "* ", "+ ")):
-            formatted.append("  • " + stripped[2:])
-            continue
+            if re.match(r"^#{1,6} ", stripped):
+                header_text = re.sub(r"^#{1,6} ", "", stripped).upper()
+                underline = "-" * len(header_text)
+                block.append(header_text)
+                block.append(underline)
+                continue
 
-        # Ordered lists
-        m = re.match(r"^(\d+)\. (.*)", stripped)
-        if m:
-            formatted.append(f"  {m.group(1)}. {m.group(2)}")
-            continue
+            if stripped.startswith(("- ", "* ", "+ ")):
+                block.append("  • " + stripped[2:])
+                continue
 
-        # Inline code (backticks)
-        if "`" in para:
-            # Replace `code` with [code] for CLI highlighting
-            formatted.append(re.sub(r"`([^`]+)`", r"'\1'", para))
-            continue
+            m = re.match(r"^(\d+)\. (.*)", stripped)
+            if m:
+                block.append(f"  {m.group(1)}. {m.group(2)}")
+                continue
 
-        # Otherwise, regular paragraph
-        formatted.append(para)
-    return formatted
+            if "`" in line:
+                line = re.sub(r"`([^`]+)`", r"'\1'", line)
+
+            block.append(line)
+
+        if block:
+            formatted_blocks.append(block)
+
+    return formatted_blocks  # List of blocks (each is a list of lines)
 
 
 def get_feed_file_path():
@@ -196,12 +196,14 @@ def display_article(entry, entries, feed_url):
         width=80, break_long_words=False, break_on_hyphens=False
     )
     wrapped_lines = []
-    for para in paragraphs:
-        wrapped_para = wrapper.wrap(para)
-        wrapped_lines.extend(wrapped_para)
-        wrapped_lines.append("")  # one blank line between paragraphs
 
-    # Remove trailing empty line
+    for block in paragraphs:  # each block is a list of lines
+        for line in block:
+            wrapped = wrapper.wrap(line)
+            wrapped_lines.extend(wrapped if wrapped else [""])
+        wrapped_lines.append("")  # add a blank line between paragraph blocks
+
+    # Remove trailing empty line if any
     if wrapped_lines and not wrapped_lines[-1].strip():
         wrapped_lines.pop()
 
@@ -211,9 +213,24 @@ def display_article(entry, entries, feed_url):
     total_pages = max(1, math.ceil(total_lines / page_size))
     page = 0
 
-    # Header
+    # Format published time if available
+    published_str = ""
+    if hasattr(entry, "published_parsed") and entry.published_parsed:
+        from datetime import datetime
+
+        dt = datetime(*entry.published_parsed[:6])
+        published_str = dt.strftime("%B %d, %Y %H:%M")
+    elif hasattr(entry, "published"):
+        published_str = entry.published
+
+    # Compose header text
+    header_text = Text()
+    header_text.append(entry.title + "\n", style="bold underline yellow")
+    if published_str:
+        header_text.append(published_str, style="dim")
+
     header = Panel(
-        Text(entry.title, style="bold underline yellow"),
+        header_text,
         title="Article",
         border_style="magenta",
         padding=(0, 2),
@@ -311,7 +328,7 @@ def select_feed_and_read():
                 if feed:
                     while True:
                         article_lines = [
-                            f"📡 Feed: {feed.feed.get('title', 'No title')}",
+                            f"Feed: {feed.feed.get('title', 'No title')}",
                             "",
                         ]
                         for i, entry in enumerate(feed.entries[:10]):
