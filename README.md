@@ -22,6 +22,23 @@ Featuring:
 - Simple keyboard navigation: `[Enter]` next page, `[b]` back, `[m]` menu, `[q]` quit
 - Fully customizable via Python code
 
+## Themes
+Themes use the standard rich colour values
+You can set these with the names or the hex values
+https://rich.readthedocs.io/en/stable/appendix/colors.html
+
+This is a gruvbox style theme
+```
+#~/.config/piperss/theme.conf
+
+[theme]
+title = dark_orange     
+header = light_goldenrod3  
+border = grey37         
+accent = yellow3     
+error = indian_red
+```
+
 ## Installation
 
 ### Source Code 
