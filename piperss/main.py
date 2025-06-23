@@ -94,7 +94,7 @@ def main():
         "--version",
         "-v",
         action="version",
-        version="PipeRSS 0.1.3 Copyright (c) 2025 Keith Henderson. This program may be freely redistributed under the terms of the MIT License.",
+        version="PipeRSS 0.1.4 Copyright (c) 2025 Keith Henderson. This program may be freely redistributed under the terms of the MIT License.",
     )
 
     parser.add_argument("--add", action="store_true", help="Add RSS feed URLs")
