@@ -33,3 +33,5 @@ coverage.xml
 .DS_Store
 Thumbs.db
 
+#Arch PKGBUILD
+PKGBUILD

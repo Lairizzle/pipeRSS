@@ -10,7 +10,8 @@ Featuring:
 - Support for Markdown-like formatting including headers, bullet lists, and code blocks
 - Interactive pagination with intuitive navigation commands
 - Beautiful syntax highlighting for code, links, and inline elements
-- Minimal dependencies — just Python and Rich library
+- Minimal dependencies
+- Custom theme options in theme.conf
 
 ## Features
 
@@ -23,10 +24,20 @@ Featuring:
 
 ## Installation
 
+### Source Code 
 Clone this repo and install dependencies:
 
 ```bash
 git clone https://github.com/lairizzle/piperss.git
 cd piperss
 pip install -r requirements.txt
+```
+### Install with pip
+```
+pip install piperss
 
+### Arch Based
+
+### Debian Based
+
+## RPM Based

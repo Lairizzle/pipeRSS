@@ -1,10 +1,10 @@
 import feedparser
 import requests
 import html2text
-import main
-import pipeList
-import pipeDisplay
-from theme import get_style
+from piperss import main
+from piperss import pipeList
+from piperss import pipeDisplay
+from piperss.theme import get_style
 from rich.console import Console
 from rich.prompt import Prompt
 from readability import Document

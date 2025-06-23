@@ -1,8 +1,8 @@
-import pipeSelection
-import pipeFormat
+from piperss import pipeSelection
+from piperss import pipeFormat
 import textwrap
 import math
-from theme import get_style
+from piperss.theme import get_style
 from rich.console import Console
 from rich.console import Console
 from rich.prompt import Prompt

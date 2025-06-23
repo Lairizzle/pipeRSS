@@ -1,7 +1,7 @@
 import argparse
-import pipeList
-import pipeSelection
-from theme import get_style
+from piperss import pipeList
+from piperss import pipeSelection
+from piperss.theme import get_style
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table

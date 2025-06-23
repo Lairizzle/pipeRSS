@@ -1,6 +1,6 @@
 import os
-import pipeFormat
-from theme import get_style
+from piperss import pipeFormat
+from piperss.theme import get_style
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt

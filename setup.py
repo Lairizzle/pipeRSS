@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="piperss",
-    version="0.1.2",
+    version="0.1.3",
     author="Keith Henderson",
     description="PipeRSS is minimalistic terminal-based RSS reader.",
     license="MIT",
