@@ -1,7 +1,7 @@
 import argparse
 import pipeList
 import pipeSelection
-import pipeFormat
+from theme import get_style
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table
@@ -10,7 +10,13 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.console import Group
 
+
 console = Console()
+theme_title = get_style("title", "dark_orange")
+theme_header = get_style("header", "light_goldenrod3")
+theme_accent = get_style("accent", "chartreuse3")
+theme_border = get_style("border", "grey37")
+theme_error = get_style("error", "indian_red")
 
 
 def main_menu():
@@ -19,8 +25,8 @@ def main_menu():
         term_height = console.size.height
 
         title_panel = Panel(
-            Text("PipeRSS", style="bold cyan", justify="center"),
-            border_style="bright_black",
+            Text("PipeRSS", style=theme_title, justify="center"),
+            border_style=theme_border,
             width=60,
         )
 
@@ -34,7 +40,7 @@ def main_menu():
         )
         menu_panel = Panel(
             Text(menu_text, justify="left"),
-            border_style="bright_black",
+            border_style=theme_border,
             width=60,
         )
 
@@ -49,7 +55,7 @@ def main_menu():
         console.print(Align.center(menu_group))
 
         choice = Prompt.ask(
-            "[yellow]Enter the number of a menu option to continue[/yellow]"
+            f"[{theme_accent}]Enter the number of a menu option to continue[/]"
         )
 
         if choice == "1":
@@ -60,13 +66,17 @@ def main_menu():
             pipeList.delete_feed()
         elif choice == "4":
             console.print(
-                "\n" + "Thank you for using PipeRSS!".center(console.size.width) + "\n"
+                "\n"
+                + f"[{theme_accent}]Thank you for using PipeRSS![/]".center(
+                    console.size.width
+                )
+                + "\n"
             )
             break
         else:
             console.print(
                 "\n"
-                + "[red]Invalid option. Please select 1–4.[/red]".center(
+                + f"[{theme_error}]Invalid option. Please select 1–4.[/]".center(
                     console.size.width
                 )
                 + "\n"
@@ -106,9 +116,12 @@ def main():
     elif args.list:
         feeds = pipeList.load_feeds()
         if not feeds:
-            console.print("[yellow]No feeds saved yet.[/yellow]")
+            console.print(f"[{theme_accent}]No feeds saved yet.[/]")
         else:
-            table = Table(title="Saved Feeds", header_style="bold magenta")
+            table = Table(
+                title=f"[{theme_title}]Saved Feeds[/]",
+                header_style=theme_header,
+            )
             table.add_column("No.")
             table.add_column("URL")
             for i, url in enumerate(feeds):

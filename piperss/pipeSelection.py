@@ -1,21 +1,27 @@
 import feedparser
 import requests
-from readability import Document
 import html2text
-from rich.console import Console
-from rich.prompt import Prompt
-import pipeFormat
+import main
 import pipeList
 import pipeDisplay
+from theme import get_style
+from rich.console import Console
+from rich.prompt import Prompt
+from readability import Document
 
 
 console = Console()
+theme_title = get_style("title", "dark_orange")
+theme_header = get_style("header", "light_goldenrod3")
+theme_accent = get_style("accent", "chartreuse3")
+theme_border = get_style("border", "grey37")
+theme_error = get_style("error", "indian_red")
 
 
 def fetch_rss(url):
     feed = feedparser.parse(url)
     if feed.bozo:
-        console.print("[red][X] Failed to parse RSS feed.[/red]")
+        console.print(f"[{theme_error}][X] Failed to parse RSS feed.[/]")
         return None
     return feed
 
@@ -30,7 +36,7 @@ def fetch_full_article(url):
         text = html2text.html2text(summary_html)
         return text.strip()
     except Exception as e:
-        return f"[⚠️ Error fetching article: {e}]"
+        return f"[{theme_error}][Error fetching article: {e}][/]"
 
 
 def select_feed_and_read():
@@ -41,7 +47,7 @@ def select_feed_and_read():
 
         try:
             feedChoice = Prompt.ask(
-                "[yellow]Select feed number to read, 'b' to go back, 'q' to quit[/yellow]"
+                f"[{theme_accent}]Select feed number to read, 'b' to go back, 'q' to quit[/]"
             )
 
             if feedChoice.lower() == "b":
@@ -56,23 +62,14 @@ def select_feed_and_read():
                 if feed:
                     while True:
                         pipeList.show_articles(feed)
-                        ##Replace with a table
-                        # article_lines = [
-                        #     f"Feed: {feed.feed.get('title', 'No title')}",
-                        #     "",
-                        # ]
-                        # for i, entry in enumerate(feed.entries[:10]):
-                        #     article_lines.append(f"{i + 1}. {entry.title}")
-
-                        # pipeFormat.print_centered_block(article_lines)
-
                         choice = Prompt.ask(
-                            "[yellow]Enter article number to read, 'b' to go back, 'm' for main menu, 'q' to quit[/yellow]"
+                            f"[{theme_accent}]Enter article number to read, 'b' to go back, 'm' for main menu, 'q' to quit[/]"
                         )
                         if choice.lower() == "b":
                             pipeList.show_feeds()
                             break
                         if choice.lower() == "m":
+                            main.main_menu()
                             return
                         if choice.lower() == "q":
                             exit(0)
@@ -87,12 +84,14 @@ def select_feed_and_read():
                                 elif action == "main_menu":
                                     return
                             else:
-                                console.print("[red]Invalid article number.[/red]")
+                                console.print(
+                                    f"[{theme_error}]Invalid article number.[/]"
+                                )
                         else:
                             console.print(
-                                "[red]Please enter a valid number, 'b', 'm', or 'q'.[/red]"
+                                f"[{theme_error}]Please enter a valid number, 'b', 'm', or 'q'.[/]"
                             )
             else:
-                console.print("[red]Invalid selection.[/red]\n")
+                console.print(f"[{theme_error}]Invalid selection.[/]\n")
         except ValueError:
             console.print("[red]Please enter a valid number or option.[/red]\n")

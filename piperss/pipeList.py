@@ -1,10 +1,16 @@
 import os
 import pipeFormat
+from theme import get_style
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt
 
 console = Console()
+theme_title = get_style("title", "dark_orange")
+theme_header = get_style("header", "light_goldenrod3")
+theme_accent = get_style("accent", "chartreuse3")
+theme_border = get_style("border", "grey37")
+theme_error = get_style("error", "indian_red")
 
 
 def get_feed_file_path():
@@ -30,37 +36,42 @@ def save_feeds(feeds):
 
 
 def add_feeds():
-    urls = Prompt.ask("[cyan]Enter RSS feed URLs (comma-separated)[/cyan]")
+    urls = Prompt.ask(f"[{theme_accent}]Enter RSS feed URLs (comma-separated)[/]")
     new_list = [url.strip() for url in urls.split(",") if url.strip()]
     feeds = load_feeds()
     feeds.extend(url for url in new_list if url not in feeds)
     save_feeds(feeds)
-    console.print("[green][+] Feeds added.[/green]\n")
+    console.print(f"[{theme_accent}][+] Feeds added.[/]\n")
 
 
 def show_feeds():
     feeds = load_feeds()
     if not feeds:
-        console.print("[yellow]No feeds saved yet. Please add some first.[/yellow]\n")
+        console.print(f"[{theme_error}]No feeds saved yet. Please add some first.[/]\n")
         return feeds
 
-    table = Table(title="Saved Feeds", header_style="bold magenta")
+    table = Table(
+        title=f"[{theme_title}]Saved Feeds[/]",
+        header_style=theme_header,
+    )
     table.add_column("No.")
     table.add_column("URL")
     for i, url in enumerate(feeds):
-        table.add_row("[cyan]" + str(i + 1) + "[/cyan].", url)
+        table.add_row(f"[{theme_accent}]" + str(i + 1) + "[/].", url)
     pipeFormat.print_centered_block(table)
 
 
 def show_articles(feed):
     table = Table(
-        title=f"Feed: {feed.feed.get('title', 'No title')}", header_style="bold magenta"
+        title=f"[{theme_title}]Feed: {feed.feed.get('title', 'No title')}[/]",
+        header_style="yellow",
     )
     table.add_column("No.")
     table.add_column("Title")
     for i, entry in enumerate(feed.entries[:10]):
         table.add_row(
-            "[cyan]" + str(i + 1) + "[/cyan].", str(entry.get("title", "No Title"))
+            f"[{theme_accent}]" + str(i + 1) + "[/].",
+            str(entry.get("title", "No Title")),
         )
     pipeFormat.print_centered_block(table)
 
@@ -68,14 +79,18 @@ def show_articles(feed):
 def delete_feed():
     feeds = load_feeds()
     if not feeds:
-        console.print("[yellow]No feeds to delete.[/yellow]\n")
+        console.print(f"[{theme_error}]No feeds to delete.[/]\n")
         return
 
-    table = Table(title="Saved Feeds", header_style="bold magenta")
+    table = Table(
+        title=f"[{theme_title}]Saved Feeds[/]",
+        header_style=theme_header,
+        border_style=theme_border,
+    )
     table.add_column("No.")
     table.add_column("URL")
     for i, url in enumerate(feeds):
-        table.add_row("[cyan]" + str(i + 1) + "[/cyan].", url)
+        table.add_row(f"[{theme_accent}]" + str(i + 1) + "[/].", url)
     pipeFormat.print_centered_block(table)
     # console.print(table)
 
@@ -83,7 +98,7 @@ def delete_feed():
         index = (
             int(
                 Prompt.ask(
-                    "[yellow]Enter the number of the feed to delete, press [ENTER] to cancel[/yellow]"
+                    f"[{theme_accent}]Enter the number of the feed to delete, press [ENTER] to cancel[/]"
                 )
             )
             - 1
@@ -91,8 +106,8 @@ def delete_feed():
         if 0 <= index < len(feeds):
             removed = feeds.pop(index)
             save_feeds(feeds)
-            console.print(f"[red][X] Removed:[/red] {removed}\n")
+            console.print(f"[{theme_error}][X] Removed:[/] {removed}\n")
         else:
-            console.print("[red]Invalid number.[/red]\n")
+            console.print(f"[{theme_error}]Invalid number.[/]\n")
     except ValueError:
-        console.print("[red]Please enter a valid number.[/red]\n")
+        console.print(f"[{theme_error}]Please enter a valid number.[/]\n")
