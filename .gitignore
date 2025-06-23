@@ -35,3 +35,7 @@ Thumbs.db
 
 #Arch PKGBUILD
 #PKGBUILD
+
+#Binaries
+*.deb
+*.rpm

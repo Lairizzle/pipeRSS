@@ -35,9 +35,25 @@ pip install -r requirements.txt
 ### Install with pip
 ```
 pip install piperss
-
+```
 ### Arch Based
+PipeRSS is not on the AUR so if you are on Arch do the following:
+
+```
+mkdir piperss-pkgbuild
+cd piperss-pkgbuild
+curl -O https://raw.githubusercontent.com/Lairizzle/pipeRSS/master/PKGBUILD
+makepkg -si
+```
 
 ### Debian Based
+```
+sudo dpkg -i piperss_0.1.3_all.deb
+piperss --version
+```
 
 ## RPM Based
+```
+sudo rpm -i piperss-0.1.3-1.noarch.rpm
+piperss --version
+```
