@@ -71,7 +71,7 @@ pip install piperss
 ```
 
 ### Arch PACKAGEBUILD (will install python dependencies globally)
-PipeRSS is not on the AUR so if you are on Arch and want to build the pacakge do the following:
+PipeRSS is not on the AUR so if you are on Arch and want to build the package do the following:
 
 ```
 mkdir piperss-pkgbuild
