@@ -2,18 +2,13 @@ from setuptools import setup, find_packages
 
 setup(
     name="piperss",
-    version="0.1.4",
+    version="0.1.5",
     author="Keith Henderson",
     description="PipeRSS is minimalistic terminal-based RSS reader.",
     license="MIT",
     packages=find_packages(),
-    install_requires=[
-        "feedparser",
-        "requests",
-        "readability-lxml",
-        "rich",
-        "html2text",
-    ],
+    include_package_data=True,
+    install_requires=[],
     entry_points={"console_scripts": ["piperss = piperss.main:main"]},
     python_requires=">=3.7",
 )

@@ -39,3 +39,7 @@ Thumbs.db
 #Binaries
 *.deb
 *.rpm
+
+#Extras
+wheels/
+vendor_from_wheels.sh
