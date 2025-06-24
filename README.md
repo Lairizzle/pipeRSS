@@ -41,36 +41,41 @@ error = indian_red
 
 ## Installation
 
-### Source Code 
-Clone this repo and install dependencies:
+### Easy Install with pipx (Recommended) 
+Requires: pipx
 
-```bash
-git clone https://github.com/lairizzle/piperss.git
-cd piperss
-pip install -r requirements.txt
+Arch:
 ```
-### Install with pip
+sudo pacman -S python-pipx
+pipx ensurepath
+pipx install piperss
+```
+Debian
+```
+sudo apt update
+sudo apt install pipx
+pipx ensurepath
+pipx install piperss
+
+```
+RHEL/Fedora
+```
+sudo dnf install pipx
+pipx ensurepath
+pipx install piperss
+```
+
+### Pip Install
 ```
 pip install piperss
 ```
-### Arch Based
-PipeRSS is not on the AUR so if you are on Arch do the following:
+
+### Arch PACKAGEBUILD (will install python dependencies globally)
+PipeRSS is not on the AUR so if you are on Arch and want to build the pacakge do the following:
 
 ```
 mkdir piperss-pkgbuild
 cd piperss-pkgbuild
 curl -O https://raw.githubusercontent.com/Lairizzle/pipeRSS/master/PKGBUILD
 makepkg -si
-```
-
-### Debian Based
-```
-sudo dpkg -i piperss_0.1.3_all.deb
-piperss --version
-```
-
-## RPM Based
-```
-sudo rpm -i piperss-0.1.3-1.noarch.rpm
-piperss --version
 ```
