@@ -1,4 +1,5 @@
 import argparse
+from piperss.__version__ import __version__
 from piperss import pipeList
 from piperss import pipeSelection
 from piperss.theme import get_style
@@ -9,7 +10,6 @@ from rich.align import Align
 from rich.panel import Panel
 from rich.text import Text
 from rich.console import Group
-
 
 console = Console()
 theme_title = get_style("title", "dark_orange")
@@ -94,7 +94,7 @@ def main():
         "--version",
         "-v",
         action="version",
-        version="PipeRSS 0.1.6 Copyright (c) 2025 Keith Henderson. This program may be freely redistributed under the terms of the MIT License.",
+        version=f"PipeRSS {__version__} Copyright (c) 2025 Keith Henderson. This program may be freely redistributed under the terms of the MIT License.",
     )
 
     parser.add_argument("--add", action="store_true", help="Add RSS feed URLs")

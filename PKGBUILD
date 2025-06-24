@@ -1,6 +1,6 @@
 # Maintainer: Keith Henderson <keith.donaldh@gmail.com>
 pkgname=piperss
-pkgver=0.1.6
+pkgver=$(grep '__version__' piperss/__version__.py | cut -d'"' -f2)
 pkgrel=1
 pkgdesc="A minimalistic terminal-based RSS reader"
 arch=('any')
