@@ -2,7 +2,7 @@ import argparse
 from piperss.__version__ import __version__
 from piperss import pipeList
 from piperss import pipeSelection
-from piperss.theme import get_style
+from piperss import theme
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table
@@ -12,11 +12,6 @@ from rich.text import Text
 from rich.console import Group
 
 console = Console()
-theme_title = get_style("title", "dark_orange")
-theme_header = get_style("header", "light_goldenrod3")
-theme_accent = get_style("accent", "yellow3")
-theme_border = get_style("border", "grey37")
-theme_error = get_style("error", "indian_red")
 
 
 def main_menu():
@@ -25,8 +20,8 @@ def main_menu():
         term_height = console.size.height
 
         title_panel = Panel(
-            Text("PipeRSS", style=theme_title, justify="center"),
-            border_style=theme_border,
+            Text("PipeRSS", style=theme.theme_title, justify="center"),
+            border_style=theme.theme_border,
             width=60,
         )
 
@@ -40,7 +35,7 @@ def main_menu():
         )
         menu_panel = Panel(
             Text(menu_text, justify="left"),
-            border_style=theme_border,
+            border_style=theme.theme_border,
             width=60,
         )
 
@@ -55,7 +50,7 @@ def main_menu():
         console.print(Align.center(menu_group))
 
         choice = Prompt.ask(
-            f"[{theme_accent}]Enter the number of a menu option to continue[/]"
+            f"[{theme.theme_accent}]Enter the number of a menu option to continue[/]"
         )
 
         if choice == "1":
@@ -67,7 +62,7 @@ def main_menu():
         elif choice == "4":
             console.print(
                 "\n"
-                + f"[{theme_accent}]Thank you for using PipeRSS![/]".center(
+                + f"[{theme.theme_accent}]Thank you for using PipeRSS![/]".center(
                     console.size.width
                 )
                 + "\n"
@@ -76,7 +71,7 @@ def main_menu():
         else:
             console.print(
                 "\n"
-                + f"[{theme_error}]Invalid option. Please select 1–4.[/]".center(
+                + f"[{theme.theme_error}]Invalid option. Please select 1–4.[/]".center(
                     console.size.width
                 )
                 + "\n"
@@ -116,11 +111,11 @@ def main():
     elif args.list:
         feeds = pipeList.load_feeds()
         if not feeds:
-            console.print(f"[{theme_accent}]No feeds saved yet.[/]")
+            console.print(f"[{theme.theme_accent}]No feeds saved yet.[/]")
         else:
             table = Table(
-                title=f"[{theme_title}]Saved Feeds[/]",
-                header_style=theme_header,
+                title=f"[{theme.theme_title}]Saved Feeds[/]",
+                header_style=theme.theme_header,
             )
             table.add_column("No.")
             table.add_column("URL")

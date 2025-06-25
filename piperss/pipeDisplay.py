@@ -1,8 +1,8 @@
 from piperss import pipeSelection
 from piperss import pipeFormat
+from piperss import theme
 import textwrap
 import math
-from piperss.theme import get_style
 from rich.console import Console
 from rich.console import Console
 from rich.prompt import Prompt
@@ -12,11 +12,6 @@ from rich.align import Align
 
 
 console = Console()
-theme_title = get_style("title", "dark_orange")
-theme_header = get_style("header", "light_goldenrod3")
-theme_accent = get_style("accent", "yellow3")
-theme_border = get_style("border", "grey37")
-theme_error = get_style("error", "indian_red")
 
 
 def display_article(entry, entries, feed_url):
@@ -86,14 +81,14 @@ def display_article(entry, entries, feed_url):
 
     # Compose header text
     header_text = Text()
-    header_text.append(entry.title + "\n", style=theme_title)
+    header_text.append(entry.title + "\n", style=theme.theme_title)
     if published_str:
         header_text.append(published_str, style="dim")
 
     header = Panel(
         header_text,
         title="Article",
-        border_style=theme_header,
+        border_style=theme.theme_header,
         padding=(0, 2),
     )
 
@@ -131,12 +126,12 @@ def display_article(entry, entries, feed_url):
         # Navigation prompt
         if end < total_lines:
             resp = Prompt.ask(
-                f"[{theme_accent}]Press [Enter] to continue, 'b' to go back, 'm' for menu, or 'q' to quit[/]",
+                f"[{theme.theme_accent}]Press [Enter] to continue, 'b' to go back, 'm' for menu, or 'q' to quit[/]",
                 default="",
             )
         else:
             resp = Prompt.ask(
-                f"[{theme_accent}]End of article. Press [Enter] to return, 'b' to go back, 'm' for menu, or 'q' to quit[/]",
+                f"[{theme.theme_accent}]End of article. Press [Enter] to return, 'b' to go back, 'm' for menu, or 'q' to quit[/]",
                 default="",
             )
 
